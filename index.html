@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Gift Card</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('image_4ec059.png') center/cover no-repeat fixed;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Glassmorphism Card Container */
+        .glass-card {
+            background: rgba(18, 22, 34, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55),
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+            border-radius: 1.75rem;
+        }
+
+        /* Sub-panel glass effect */
+        .glass-inner {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Custom Checkbox Styling */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.35rem;
+            height: 1.35rem;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0.4rem;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-checkbox:checked {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .custom-checkbox:checked::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #ffffff;
+            font-size: 0.75rem;
+        }
+
+        /* Smooth state transition */
+        .fade-transition {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .state-hidden {
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Ambient Glow Pulse */
+        @keyframes subtlePulse {
+            0%, 100% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.55), 0 0 20px rgba(255, 255, 255, 0.05); }
+            50% { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.65), 0 0 30px rgba(16, 185, 129, 0.15); }
+        }
+
+        .glow-unlocked {
+            animation: subtlePulse 4s infinite ease-in-out;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 sm:p-6 min-h-screen relative">
+
+    <!-- Dark subtle overlay mask for optimal text contrast -->
+    <div class="fixed inset-0 bg-slate-950/35 pointer-events-none"></div>
+
+    <!-- Main Card Container (2-Column Responsive Layout) -->
+    <div class="relative z-10 w-full max-w-4xl mx-auto my-auto">
+        
+        <!-- Glassmorphism Main Wrapper Container -->
+        <div id="card-wrapper" class="glass-card p-4 sm:p-6 lg:p-8 relative overflow-hidden transition-all duration-500">
+            
+            <!-- Customizer Gear Button (Minimalist floating) -->
+            <button onclick="toggleSettingsModal(true)" 
+                    class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white/70 hover:text-white transition active:scale-90 shadow-lg backdrop-blur-md"
+                    title="Customize Gift Card & Photo">
+                <i class="fa-solid fa-sliders text-sm"></i>
+            </button>
+
+            <!-- Grid Layout: Image on Left/Top, Card on Right/Bottom -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+
+                <!-- LEFT SIDE: Side Image Frame -->
+                <div class="md:col-span-5 flex flex-col items-center justify-center">
+                    <div class="relative w-full max-w-xs md:max-w-none aspect-square sm:aspect-[4/5] rounded-2xl overflow-hidden glass-inner border border-white/20 shadow-2xl group">
+                        <!-- Custom Photo Display -->
+                        <img id="display-bro-img" 
+                             src="2026-10-06_11-13.png" 
+                             alt="Bro Photo" 
+                             class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x800/1e293b/ffffff?text=Bro+Photo';">
+                        
+                        <!-- Overlay Tag -->
+                        <div class="absolute bottom-3 left-3 right-3 glass-card px-3 py-2 border border-white/20 text-center rounded-xl backdrop-blur-md bg-slate-950/60">
+                            <p class="text-xs font-semibold text-emerald-300 tracking-wide uppercase font-heading truncate">
+                                Birthday Legend
+                            </p>
+                            <p id="display-img-caption" class="text-[11px] text-slate-300 truncate">
+                                <span class="recipient-name">My gay Bro</span> Getting his glory hole enlarged
+                            </p>
+                        </div>
+
+                        <!-- Quick Change Hover Button -->
+                        <button onclick="toggleSettingsModal(true)" 
+                                class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 text-white text-xs font-medium backdrop-blur-xs">
+                            <i class="fa-solid fa-camera text-xl text-emerald-400"></i>
+                            <span>Change Photo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE: Gift Card Content Area -->
+                <div class="md:col-span-7 relative min-h-[380px] flex flex-col justify-center">
+
+                    <!-- ================= STATE 1: LOCKED (VERIFICATION) ================= -->
+                    <div id="locked-state" class="fade-transition space-y-5">
+                        <!-- Header -->
+                        <div class="space-y-1.5 pr-8">
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold tracking-wider uppercase border border-white/10">
+                                <i class="fa-solid fa-lock text-[10px]"></i> Birthday Verification
+                            </span>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white font-heading tracking-tight pt-1">
+                                Happy Birthday, <span class="recipient-name text-emerald-400">Bro</span> 🎂
+                            </h1>
+                            <p class="text-xs sm:text-sm text-slate-300">
+                                confess your sins and verify the following statements to unlock your birthday gift card!
+                            </p>
+                        </div>
+
+                        <!-- Checkbox List -->
+                        <div class="space-y-2.5 pt-1">
+                            <!-- Checkbox 1 -->
+                            <label class="glass-inner p-3 sm:p-3.5 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-white/10 transition group">
+                                <input type="checkbox" id="check-1" onchange="validateCheckboxes()" class="custom-checkbox mt-0.5">
+                                <span id="label-check-1" class="text-xs sm:text-sm text-slate-200 group-hover:text-white leading-relaxed select-none">
+                                    Im gay and i suck everyone's dick
+                                </span>
+                            </label>
+
+                            <!-- Checkbox 2 -->
+                            <label class="glass-inner p-3 sm:p-3.5 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-white/10 transition group">
+                                <input type="checkbox" id="check-2" onchange="validateCheckboxes()" class="custom-checkbox mt-0.5">
+                                <span id="label-check-2" class="text-xs sm:text-sm text-slate-200 group-hover:text-white leading-relaxed select-none">
+                                    I am a pedophile and love kids
+                                </span>
+                            </label>
+
+                            <!-- Checkbox 3 -->
+                            <label class="glass-inner p-3 sm:p-3.5 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-white/10 transition group">
+                                <input type="checkbox" id="check-3" onchange="validateCheckboxes()" class="custom-checkbox mt-0.5">
+                                <span id="label-check-3" class="text-xs sm:text-sm text-slate-200 group-hover:text-white leading-relaxed select-none">
+                                    I will suck aung thant lin dick
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Unlock Button -->
+                        <div class="pt-1">
+                            <button id="unlock-btn" 
+                                    disabled 
+                                    onclick="unlockGiftCard()" 
+                                    class="w-full py-3.5 px-6 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 bg-white/10 text-white/40 cursor-not-allowed border border-white/5">
+                                <i class="fa-solid fa-gift text-base"></i>
+                                <span>UNLOCK GIFT CARD</span>
+                            </button>
+                            <p class="text-center text-[11px] text-slate-400 mt-2">
+                                <span id="checked-count">0</span> of 3 requirements verified
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- ================= STATE 2: UNLOCKED (REVEALED GIFT CARD) ================= -->
+                    <div id="unlocked-state" class="fade-transition state-hidden space-y-5">
+                        <!-- Top Badge -->
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wider uppercase border border-emerald-500/30">
+                                <i class="fa-solid fa-circle-check text-[10px]"></i> OFFICIAL BIRTHDAY VOUCHER
+                            </span>
+                            <span class="text-xs text-slate-400 font-mono">STATUS: UNLOCKED</span>
+                        </div>
+
+                        <!-- Voucher Header & Title -->
+                        <div class="space-y-1">
+                            <h2 id="display-gift-title" class="text-2xl sm:text-3xl font-extrabold text-white font-heading tracking-tight">
+                                Child porn
+                            </h2>
+                            <p class="text-xs sm:text-sm text-slate-300">
+                                Prepared specially for <strong class="recipient-name text-emerald-400">My gay Bro</strong>
+                            </p>
+                        </div>
+
+                        <!-- Personal Message Box -->
+                        <div class="glass-inner p-3.5 sm:p-4 rounded-xl border border-white/10 text-slate-200 text-xs sm:text-sm leading-relaxed italic relative">
+                            <i class="fa-solid fa-quote-left text-white/10 text-3xl absolute top-2 right-3 pointer-events-none"></i>
+                            "<span id="display-gift-msg">Hppy bd my bro, I luv u budddy, i wish u get gang raped </span>"
+                        </div>
+
+                        <!-- Redeemable Code Section -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                YOur gay porn code (you have to film it urself with me)
+                            </label>
+                            <div class="glass-inner p-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-between gap-2 bg-slate-950/40">
+                                <span id="display-gift-code" class="font-mono text-base sm:text-lg font-bold text-emerald-300 tracking-wider px-2 truncate">
+                                    Jared
+                                    2010 - 2016
+                                </span>
+                                <button onclick="copyGiftCode()" 
+                                        class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition active:scale-95 flex items-center gap-1.5 shrink-0 shadow-lg shadow-emerald-500/20">
+                                    <i class="fa-solid fa-copy"></i>
+                                    <span id="copy-btn-text">COPY</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Footer details -->
+                        <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10">
+                            <span>Valid indefinitely • 100% Authentic</span>
+                            <button onclick="relockCard()" class="hover:text-white underline transition">Lock Card</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= CUSTOMIZATION MODAL ================= -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md p-6 relative space-y-4 border border-white/20 shadow-2xl">
+            
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 class="text-lg font-bold text-white font-heading flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-400"></i> Customize Gift Card & Photo
+                </h3>
+                <button onclick="toggleSettingsModal(false)" class="text-slate-400 hover:text-white text-lg font-bold p-1">&times;</button>
+            </div>
+
+            <div class="space-y-3.5 max-h-[65vh] overflow-y-auto pr-1">
+                
+                <!-- Side Image Upload / URL Section -->
+                <div class="p-3 glass-inner rounded-xl space-y-2 border border-white/10">
+                    <label class="block text-xs font-semibold text-emerald-400">Side Photo (Bro's Picture)</label>
+                    
+                    <!-- File Upload Option -->
+                    <div class="flex items-center gap-2">
+                        <label class="cursor-pointer bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-1.5 rounded-lg border border-white/15 transition flex items-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-upload text-emerald-400"></i> Upload File
+                            <input type="file" id="input-image-file" accept="image/*" class="hidden" onchange="handleImageFileUpload(event)">
+                        </label>
+                        <span class="text-[11px] text-slate-400">or enter URL below</span>
+                    </div>
+
+                    <!-- URL Input Option -->
+                    <input type="text" id="input-image-url" 
+                           value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" 
+                           placeholder="https://example.com/photo.jpg" 
+                           class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400 truncate">
+                </div>
+
+                <!-- Recipient Name -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Recipient Name / Nickname</label>
+                    <input type="text" id="input-recipient" value="Bro" class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <!-- Gift Title -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Gift Card / Voucher Title</label>
+                    <input type="text" id="input-title" value="$50 Steam Gift Card" class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <!-- Gift Code -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Redeem Code</label>
+                    <input type="text" id="input-code" value="HBD-BRO-2026-LEGEND" class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-2 text-sm font-mono text-emerald-300 focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <!-- Custom Message -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Personal Message</label>
+                    <textarea id="input-msg" rows="2" class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400">Happy Birthday man! Hope your day is filled with wins, zero lag, and great food. Enjoy this gift on me!</textarea>
+                </div>
+
+                <!-- Checkbox Statements Customization -->
+                <div class="pt-2 border-t border-white/10 space-y-2">
+                    <label class="block text-xs font-semibold text-emerald-400">Verification Checkboxes Text</label>
+                    <input type="text" id="input-box1" value="I acknowledge that I am officially another year older today." class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+                    <input type="text" id="input-box2" value="I promise not to steal your clothes or stuff for at least 24 hours." class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+                    <input type="text" id="input-box3" value="I agree that this is the best birthday gift card ever made." class="w-full bg-slate-900/80 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+                </div>
+            </div>
+
+            <!-- Modal Action -->
+            <div class="pt-2 flex items-center gap-3">
+                <button onclick="saveSettings()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm py-2.5 rounded-xl transition active:scale-95 shadow-lg shadow-emerald-500/20">
+                    Save & Update Card
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle image file upload directly from computer/mobile
+        function handleImageFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Url = e.target.result;
+                    document.getElementById('input-image-url').value = base64Url;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Checkbox Validation Logic
+        function validateCheckboxes() {
+            const b1 = document.getElementById('check-1').checked;
+            const b2 = document.getElementById('check-2').checked;
+            const b3 = document.getElementById('check-3').checked;
+
+            const count = (b1 ? 1 : 0) + (b2 ? 1 : 0) + (b3 ? 1 : 0);
+            document.getElementById('checked-count').innerText = count;
+
+            const unlockBtn = document.getElementById('unlock-btn');
+
+            if (b1 && b2 && b3) {
+                unlockBtn.disabled = false;
+                unlockBtn.className = "w-full py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02] cursor-pointer hover:brightness-110 active:scale-95";
+            } else {
+                unlockBtn.disabled = true;
+                unlockBtn.className = "w-full py-3.5 px-6 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 bg-white/10 text-white/40 cursor-not-allowed border border-white/5";
+            }
+        }
+
+        // Unlock Card Transition
+        function unlockGiftCard() {
+            const lockedState = document.getElementById('locked-state');
+            const unlockedState = document.getElementById('unlocked-state');
+            const cardWrapper = document.getElementById('card-wrapper');
+
+            // Hide locked view
+            lockedState.classList.add('state-hidden');
+
+            setTimeout(() => {
+                // Show unlocked view
+                unlockedState.classList.remove('state-hidden');
+                cardWrapper.classList.add('glow-unlocked');
+
+                // Trigger subtle celebration confetti
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 80,
+                        spread: 60,
+                        origin: { y: 0.65 },
+                        colors: ['#10b981', '#34d399', '#ffffff', '#f59e0b']
+                    });
+                }
+            }, 300);
+        }
+
+        // Relock Card (optional reset)
+        function relockCard() {
+            document.getElementById('check-1').checked = false;
+            document.getElementById('check-2').checked = false;
+            document.getElementById('check-3').checked = false;
+            validateCheckboxes();
+
+            const lockedState = document.getElementById('locked-state');
+            const unlockedState = document.getElementById('unlocked-state');
+            const cardWrapper = document.getElementById('card-wrapper');
+
+            unlockedState.classList.add('state-hidden');
+            cardWrapper.classList.remove('glow-unlocked');
+
+            setTimeout(() => {
+                lockedState.classList.remove('state-hidden');
+            }, 300);
+        }
+
+        // Copy Code Function (Robust iFrame Fallback)
+        function copyGiftCode() {
+            const codeText = document.getElementById('display-gift-code').innerText.trim();
+            
+            // Clipboard fallback logic
+            const tempInput = document.createElement('textarea');
+            tempInput.value = codeText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            try {
+                document.execCommand('copy');
+                const btnText = document.getElementById('copy-btn-text');
+                btnText.innerText = "COPIED! ✨";
+                setTimeout(() => {
+                    btnText.innerText = "COPY";
+                }, 2000);
+            } catch (err) {
+                console.error("Copy failed", err);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        // Settings Modal Controls
+        function toggleSettingsModal(show) {
+            const modal = document.getElementById('settings-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Save Customization
+        function saveSettings() {
+            const recipient = document.getElementById('input-recipient').value.trim() || "Bro";
+            const title = document.getElementById('input-title').value.trim() || "$50 Steam Gift Card";
+            const code = document.getElementById('input-code').value.trim() || "HBD-BRO-2026";
+            const msg = document.getElementById('input-msg').value.trim() || "";
+            const imgUrl = document.getElementById('input-image-url').value.trim();
+
+            const b1 = document.getElementById('input-box1').value.trim();
+            const b2 = document.getElementById('input-box2').value.trim();
+            const b3 = document.getElementById('input-box3').value.trim();
+
+            // Apply image updates
+            if (imgUrl) {
+                document.getElementById('display-bro-img').src = imgUrl;
+            }
+
+            // Apply updates to UI text
+            document.querySelectorAll('.recipient-name').forEach(el => el.innerText = recipient);
+            document.getElementById('display-gift-title').innerText = title;
+            document.getElementById('display-gift-code').innerText = code;
+            document.getElementById('display-gift-msg').innerText = msg;
+
+            if (b1) document.getElementById('label-check-1').innerText = b1;
+            if (b2) document.getElementById('label-check-2').innerText = b2;
+            if (b3) document.getElementById('label-check-3').innerText = b3;
+
+            toggleSettingsModal(false);
+        }
+    </script>
+</body>
+</html>
